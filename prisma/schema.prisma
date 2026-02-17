@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Ticket {
+  id            String        @id @default(uuid())
+  ticketNumber  String        @unique
+  subject       String
+  description   String        @db.Text
+  status        String        @default("Open")
+  priority      String        @default("Medium")
+  category      String
+  customerName  String
+  customerEmail String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  updates       TicketUpdate[]
+  assignedTo    Int?
+
+  @@map("tickets")
+}
+
+model TicketUpdate {
+  id        Int      @id @default(autoincrement())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  message   String   @db.Text
+  status    String?
+  createdBy Int
+  createdAt DateTime @default(now())
+
+  @@map("ticket_updates")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
